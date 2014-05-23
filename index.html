@@ -1,0 +1,137 @@
+<html>
+<head>
+    <title>Pure JavaScript Memory</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <script language="javascript">
+        function Board(width, height, moveFunction) {
+            this.width = width;
+            this.height = height;
+            this.moveFunction = moveFunction;
+            this.squares = [];
+            this.clickedSquares = {first: null, second: null};
+            this.gameWon = false;
+
+            for (var y = 0; y < this.height; y++) {
+                this.squares[y] = [];
+                for (var x = 0; x < this.width; x++) {
+                    this.squares[y][x] = 0;
+                }
+            }
+
+            this.populate = function () {
+                for (var number = 1; number <= this.width * this.height / 2; number++) {
+                    this.placeNumber(number);
+                    this.placeNumber(number);
+                }
+            }
+
+            this.placeNumber = function (number) {
+                for (; ;) {
+                    var y = Math.floor(Math.random() * this.height);
+                    var x = Math.floor(Math.random() * this.width);
+                    if (this.squares[y][x] == 0) {
+                        this.squares[y][x] = number;
+                        return;
+                    }
+                }
+            }
+
+            this.squaresMatch = function (firstSquare, secondSquare) {
+                return this.squares[firstSquare.y][firstSquare.x] == this.squares[secondSquare.y][secondSquare.x];
+            }
+
+            this.clickedSquare = function (id) {
+                if (this.gameWon) {
+                    return;
+                }
+
+                var square = new Square(id);
+                if (this.sameSquareClicked(square)) {
+                    return;
+                }
+
+                if (this.bothSquaresFlipped()) {
+                    this.clickedSquares.first.clear();
+                    this.clickedSquares.second.clear();
+                    this.clickedSquares.first = this.clickedSquares.second = null;
+                }
+
+                this.flipSquare(square);
+
+                if (this.bothSquaresFlipped()) {
+                    this.moveFunction();
+                    if (this.squaresMatch(this.clickedSquares.first, this.clickedSquares.second)) {
+                        this.gameWon = true;
+                        document.getElementById("winbanner").className = "visible";
+                    }
+                }
+            }
+
+            this.flipSquare = function (square) {
+                if (this.clickedSquares.first == null) {
+                    this.clickedSquares.first = square;
+                } else if (this.clickedSquares.first != null && this.clickedSquares.second == null) {
+                    this.clickedSquares.second = square;
+                }
+                square.showContents();
+            }
+
+            this.sameSquareClicked = function (otherSquare) {
+                return this.clickedSquares.first != null && this.clickedSquares.first.id == otherSquare.id;
+            }
+
+            this.bothSquaresFlipped = function () {
+                return this.clickedSquares.first != null && this.clickedSquares.second != null;
+            }
+        }
+
+        function Square(id) {
+            this.id = id;
+            this.x = parseInt(id.substring(1, 2));
+            this.y = parseInt(id.substring(2, 3));
+
+            this.clear = function () {
+                document.getElementById(this.id).innerHTML = "<img src=\"back.png\"/>";
+            }
+
+            this.showContents = function () {
+                document.getElementById(this.id).innerHTML = "<img src=\"" + board.squares[this.y][this.x] + ".png\"/>";
+            }
+        }
+
+        function showWinBanner() {
+            document.getElementById("overlay").style.visibility = "visible";
+        }
+
+        var moves = 0;
+        var board = new Board(4, 4, function () {
+            document.getElementById("moveCounter").innerHTML = ++moves;
+        });
+    </script>
+</head>
+<body onload="board.populate();">
+<div id="overlay" onclick="location.reload()"><img id="winbanner" src="win.png"/></div>
+<div id="panel">
+    Moves: <span id="moveCounter">0</span>
+</div>
+<div id="grid">
+    <div class="cell" id="c00" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell" id="c10" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell" id="c20" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell end" id="c30" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell" id="c01" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell" id="c11" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell" id="c21" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell end" id="c31" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell" id="c02" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell" id="c12" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell" id="c22" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell end" id="c32" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell" id="c03" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell" id="c13" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell" id="c23" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+    <div class="cell end" id="c33" onclick="board.clickedSquare(this.id)"><img src="back.png"/></div>
+</div>
+</body>
+</html>
