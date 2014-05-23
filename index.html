@@ -63,7 +63,7 @@
                     this.moveFunction();
                     if (this.squaresMatch(this.clickedSquares.first, this.clickedSquares.second)) {
                         this.gameWon = true;
-                        document.getElementById("winbanner").className = "visible";
+                        showWinBanner();
                     }
                 }
             }
